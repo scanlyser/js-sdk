@@ -1,0 +1,32 @@
+{
+  "name": "@scanlyser/js-sdk",
+  "version": "1.0.0",
+  "description": "TypeScript SDK for the ScanLyser API — accessibility, SEO, performance, UX, and security scanning.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "LICENSE", "README.md"],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": ["scanlyser", "accessibility", "wcag", "seo", "performance", "ux", "security", "api", "sdk"],
+  "author": "ScanLyser",
+  "license": "MIT",
+  "homepage": "https://scanlyser.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scanlyser/js-sdk.git"
+  },
+  "devDependencies": {
+    "typescript": "^5.7",
+    "vitest": "^3.0"
+  }
+}
