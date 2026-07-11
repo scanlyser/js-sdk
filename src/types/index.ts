@@ -1,4 +1,30 @@
-export type ScanStatus = 'pending' | 'crawling' | 'analysing' | 'completed' | 'failed' | 'rescanning';
+export type ScanStatus =
+  | 'pending'
+  | 'crawling'
+  | 'analysing'
+  | 'completed'
+  | 'failed'
+  | 'cancelled'
+  | 'rescanning';
+export type ScanPageStatus = 'pending' | 'evaluating' | 'analysing' | 'completed' | 'failed' | 'rescanning';
+export type ScanAssessmentOutcome = 'complete' | 'partial' | 'inconclusive' | 'failed';
+export type ScanPageAssessmentOutcome = 'analysed' | 'inconclusive' | 'failed' | 'aborted';
+export type ScanPageAssessmentCause =
+  | 'dns'
+  | 'tls'
+  | 'connection'
+  | 'http'
+  | 'bot_protection'
+  | 'redirect_off_site'
+  | 'egress_blocked'
+  | 'renderer'
+  | 'action_exhausted'
+  | 'page_watchdog_timeout'
+  | 'parent_scan_failed'
+  | 'parent_scan_cancelled'
+  | 'parent_scan_completed'
+  | 'scan_watchdog_timeout';
+export type ScanScoreIneligibilityReason = 'no_analysed_pages' | 'seed_page_unanalysed';
 export type WcagLevel = 'A' | 'AA' | 'AAA';
 export type IssueCategory = 'wcag' | 'seo' | 'performance' | 'ux' | 'sitewide' | 'other';
 export type IssueSeverity = 'critical' | 'major' | 'minor' | 'info';
@@ -21,10 +47,27 @@ export interface ScanScores {
   other: number;
 }
 
+export interface ScanCoverage {
+  pages: {
+    discovered: number;
+    analysed: number;
+    inconclusive: number;
+    failed: number;
+    aborted: number;
+    coverage_percent: number | null;
+    seed_analysed: boolean;
+  };
+  score_eligible: boolean;
+  score_ineligibility_reason: ScanScoreIneligibilityReason | null;
+  causes: Partial<Record<ScanPageAssessmentCause, number>>;
+}
+
 export interface Scan {
   id: string;
   site_id: string;
   status: ScanStatus;
+  assessment_outcome: ScanAssessmentOutcome | null;
+  coverage: ScanCoverage | null;
   wcag_level: WcagLevel;
   pages_crawled: number;
   pages_total: number;
@@ -35,6 +78,12 @@ export interface Scan {
   failed_at: string | null;
   failure_reason: string | null;
 }
+
+export type ScanWithUsableScore = Scan & {
+  assessment_outcome: 'complete' | 'partial';
+  coverage: ScanCoverage & { score_eligible: true };
+  scores: ScanScores;
+};
 
 export interface Site {
   id: string;
@@ -49,10 +98,18 @@ export interface Site {
 export interface ScanPage {
   id: string;
   url: string;
-  status: ScanStatus;
+  status: ScanPageStatus;
+  assessment_outcome: ScanPageAssessmentOutcome | null;
+  assessment_cause: ScanPageAssessmentCause | null;
   issues_count: number;
   issues: Issue[] | null;
   completed_at: string | null;
+}
+
+export function hasUsableScore(scan: Scan): scan is ScanWithUsableScore {
+  return (scan.assessment_outcome === 'complete' || scan.assessment_outcome === 'partial')
+    && scan.coverage?.score_eligible === true
+    && scan.scores !== null;
 }
 
 export interface Issue {

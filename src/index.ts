@@ -18,16 +18,24 @@ export {
 } from './errors/index.js';
 
 export { verifyWebhookSignature } from './webhooks.js';
+export { hasUsableScore } from './types/index.js';
 
 export type {
   Team,
   Site,
   Scan,
   ScanScores,
+  ScanWithUsableScore,
+  ScanCoverage,
   ScanPage,
   Issue,
   PaginatedResponse,
   ScanStatus,
+  ScanPageStatus,
+  ScanAssessmentOutcome,
+  ScanPageAssessmentOutcome,
+  ScanPageAssessmentCause,
+  ScanScoreIneligibilityReason,
   WcagLevel,
   IssueCategory,
   IssueSeverity,

@@ -16,7 +16,7 @@ npm install @scanlyser/js-sdk
 ## Quick Start
 
 ```typescript
-import { Client } from '@scanlyser/js-sdk';
+import { Client, hasUsableScore } from '@scanlyser/js-sdk';
 
 const client = new Client({ apiKey: 'your-api-token' });
 
@@ -76,7 +76,16 @@ const completed = await client.scans(teamId).awaitCompletion(scanId, {
   timeoutMs: 600_000,
   pollIntervalMs: 10_000,
 });
+
+if (hasUsableScore(completed)) {
+  console.log(`Score: ${completed.scores.overall}`);
+} else {
+  console.log(`Outcome: ${completed.assessment_outcome}`);
+}
 ```
+
+Polling stops for completed, failed, and cancelled scans. A completed lifecycle does not by itself guarantee a score:
+inspect `assessment_outcome`, `coverage`, or use `hasUsableScore()` before presenting score data.
 
 ### Pages
 

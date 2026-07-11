@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- Typed scan assessment outcome, coverage, score eligibility, and page assessment outcome/cause data
+- `hasUsableScore()` for guarding score presentation against incomplete evidence
+- Distinct `ScanPageStatus` lifecycle type, including the API's `evaluating` state
+
+### Fixed
+- Treat cancelled scans as terminal in `awaitCompletion()`
+
 ## [1.0.0] - 2026-04-08
 
 ### Added

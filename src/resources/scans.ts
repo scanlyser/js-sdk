@@ -47,7 +47,7 @@ export class ScanResource {
     return response.data;
   }
 
-  /** Poll a scan until it reaches a terminal state (completed or failed). */
+  /** Poll a scan until it reaches a terminal state (completed, failed, or cancelled). */
   async awaitCompletion(
     scanId: string,
     options: { timeoutMs?: number; pollIntervalMs?: number } = {},
@@ -58,7 +58,7 @@ export class ScanResource {
     while (true) {
       const scan = await this.get(scanId);
 
-      if (scan.status === 'completed' || scan.status === 'failed') {
+      if (scan.status === 'completed' || scan.status === 'failed' || scan.status === 'cancelled') {
         return scan;
       }
 
