@@ -26,8 +26,23 @@ export type ScanPageAssessmentCause =
   | 'scan_watchdog_timeout';
 export type ScanScoreIneligibilityReason = 'no_analysed_pages' | 'seed_page_unanalysed';
 export type WcagLevel = 'A' | 'AA' | 'AAA';
+export type ScanCategory = 'accessibility' | 'seo' | 'performance' | 'ux' | 'security';
 export type IssueCategory = 'wcag' | 'seo' | 'performance' | 'ux' | 'sitewide' | 'other';
 export type IssueSeverity = 'critical' | 'major' | 'minor' | 'info';
+export type CategoryCoverageOutcome = 'not_scanned' | 'assessed' | 'partial' | 'inconclusive';
+export type ActionGapReason =
+  | 'execution_failed'
+  | 'dispatch_failed'
+  | 'probe_failed'
+  | 'homepage_unavailable'
+  | 'tool_unavailable'
+  | 'configured_skip'
+  | 'quota_exceeded'
+  | 'rate_limited'
+  | 'provider_unavailable'
+  | 'invalid_response'
+  | 'truncated_response'
+  | 'terminal_invariant';
 
 export interface Team {
   id: string;
@@ -39,13 +54,26 @@ export interface Team {
 
 export interface ScanScores {
   overall: number;
-  wcag: number;
-  seo: number;
-  performance: number;
-  ux: number;
-  sitewide: number;
-  other: number;
+  wcag: number | null;
+  seo: number | null;
+  performance: number | null;
+  ux: number | null;
+  sitewide: number | null;
+  other: number | null;
 }
+
+export interface CategoryCoverageEntry {
+  requested: boolean;
+  outcome: CategoryCoverageOutcome;
+  score_eligible: boolean;
+  planned_baseline: number;
+  planned_supplemental: number;
+  gap_baseline: number;
+  gap_supplemental: number;
+  gap_reasons: Partial<Record<ActionGapReason, number>>;
+}
+
+export type ScanCategoryCoverage = Record<ScanCategory, CategoryCoverageEntry>;
 
 export interface ScanCoverage {
   pages: {
@@ -68,6 +96,9 @@ export interface Scan {
   status: ScanStatus;
   assessment_outcome: ScanAssessmentOutcome | null;
   coverage: ScanCoverage | null;
+  requested_categories: ScanCategory[];
+  category_coverage: ScanCategoryCoverage | null;
+  scored_category_scope: ScanCategory[] | null;
   wcag_level: WcagLevel;
   pages_crawled: number;
   pages_total: number;
@@ -83,6 +114,23 @@ export type ScanWithUsableScore = Scan & {
   assessment_outcome: 'complete' | 'partial';
   coverage: ScanCoverage & { score_eligible: true };
   scores: ScanScores;
+};
+
+type CategoryScoreMembers = {
+  accessibility: { wcag: number };
+  seo: { seo: number };
+  performance: { performance: number };
+  ux: { ux: number };
+  security: { sitewide: number; other: number };
+};
+
+export type ScanWithUsableCategoryScore<Category extends ScanCategory> = Scan & {
+  category_coverage: ScanCategoryCoverage & Record<
+    Category,
+    CategoryCoverageEntry & { score_eligible: true }
+  >;
+  scored_category_scope: ScanCategory[];
+  scores: ScanScores & CategoryScoreMembers[Category];
 };
 
 export interface Site {
@@ -110,6 +158,39 @@ export function hasUsableScore(scan: Scan): scan is ScanWithUsableScore {
   return (scan.assessment_outcome === 'complete' || scan.assessment_outcome === 'partial')
     && scan.coverage?.score_eligible === true
     && scan.scores !== null;
+}
+
+/** Determine whether a public category has eligible evidence and all of its governed score buckets. */
+export function hasUsableCategoryScore<Category extends ScanCategory>(
+  scan: Scan,
+  category: Category,
+): scan is ScanWithUsableCategoryScore<Category> {
+  const coverage = scan.category_coverage?.[category];
+
+  if (
+    scan.scores === null
+    || coverage?.score_eligible !== true
+    || !scan.scored_category_scope?.includes(category)
+  ) {
+    return false;
+  }
+
+  return categoryScoreValues(scan.scores, category).every((score) => score !== null);
+}
+
+function categoryScoreValues(scores: ScanScores, category: ScanCategory): (number | null)[] {
+  switch (category) {
+    case 'accessibility':
+      return [scores.wcag];
+    case 'seo':
+      return [scores.seo];
+    case 'performance':
+      return [scores.performance];
+    case 'ux':
+      return [scores.ux];
+    case 'security':
+      return [scores.sitewide, scores.other];
+  }
 }
 
 export interface Issue {

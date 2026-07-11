@@ -18,7 +18,7 @@ export {
 } from './errors/index.js';
 
 export { verifyWebhookSignature } from './webhooks.js';
-export { hasUsableScore } from './types/index.js';
+export { hasUsableCategoryScore, hasUsableScore } from './types/index.js';
 
 export type {
   Team,
@@ -26,6 +26,7 @@ export type {
   Scan,
   ScanScores,
   ScanWithUsableScore,
+  ScanWithUsableCategoryScore,
   ScanCoverage,
   ScanPage,
   Issue,
@@ -36,6 +37,11 @@ export type {
   ScanPageAssessmentOutcome,
   ScanPageAssessmentCause,
   ScanScoreIneligibilityReason,
+  ScanCategory,
+  ScanCategoryCoverage,
+  CategoryCoverageEntry,
+  CategoryCoverageOutcome,
+  ActionGapReason,
   WcagLevel,
   IssueCategory,
   IssueSeverity,

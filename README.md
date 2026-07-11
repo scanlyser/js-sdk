@@ -16,7 +16,7 @@ npm install @scanlyser/js-sdk
 ## Quick Start
 
 ```typescript
-import { Client, hasUsableScore } from '@scanlyser/js-sdk';
+import { Client, hasUsableCategoryScore, hasUsableScore } from '@scanlyser/js-sdk';
 
 const client = new Client({ apiKey: 'your-api-token' });
 
@@ -68,8 +68,14 @@ await client.sites(teamId).delete(siteId);
 
 ```typescript
 const scans = await client.scans(teamId).list(siteId);
-const scan = await client.scans(teamId).trigger(siteId, 'AA');
-const scan = await client.scans(teamId).get(scanId);
+const triggeredScan = await client.scans(teamId).trigger(siteId, 'AA');
+const scopedScan = await client.scans(teamId).trigger(
+  siteId,
+  'AA',
+  'https://example.com/webhooks/scanlyser',
+  ['seo', 'performance'],
+);
+const fetchedScan = await client.scans(teamId).get(scanId);
 
 // Poll until complete (default: 600s timeout, 10s interval)
 const completed = await client.scans(teamId).awaitCompletion(scanId, {
@@ -82,10 +88,27 @@ if (hasUsableScore(completed)) {
 } else {
   console.log(`Outcome: ${completed.assessment_outcome}`);
 }
+
+if (hasUsableCategoryScore(completed, 'seo')) {
+  console.log(`SEO score: ${completed.scores.seo}`);
+} else {
+  console.log(`SEO evidence: ${completed.category_coverage?.seo.outcome ?? 'not available'}`);
+}
 ```
 
 Polling stops for completed, failed, and cancelled scans. A completed lifecycle does not by itself guarantee a score:
 inspect `assessment_outcome`, `coverage`, or use `hasUsableScore()` before presenting score data.
+
+The fourth `trigger()` argument optionally selects one or more public scan categories: `accessibility`, `seo`,
+`performance`, `ux`, and `security`. Omitting it scans all categories. The existing third positional argument remains
+the webhook URL; pass `undefined` when selecting categories without a webhook. An explicitly empty category array is
+invalid.
+
+Category scores are nullable. Use `requested_categories` for the requested scope, `category_coverage` for each
+category's `not_scanned`, `assessed`, `partial`, or `inconclusive` evidence outcome, and `scored_category_scope` for the
+categories included in the overall score. `hasUsableCategoryScore()` checks both that evidence contract and the
+category's governed numeric score bucket(s). In particular, the public `security` category is usable only when both
+internal `sitewide` and `other` score members are numeric.
 
 ### Pages
 

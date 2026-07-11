@@ -10,10 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Typed scan assessment outcome, coverage, score eligibility, and page assessment outcome/cause data
 - `hasUsableScore()` for guarding score presentation against incomplete evidence
+- Distinct public `ScanCategory` type and optional scan-category selection in `ScanResource.trigger()`
+- Requested-category, category-coverage, and scored-category-scope response types
+- `hasUsableCategoryScore()` for guarding category score presentation against missing or incomplete evidence
 - Distinct `ScanPageStatus` lifecycle type, including the API's `evaluating` state
 
 ### Fixed
 - Treat cancelled scans as terminal in `awaitCompletion()`
+- Preserve nullable category scores instead of requiring unassessed categories to be numeric
 
 ## [1.0.0] - 2026-04-08
 

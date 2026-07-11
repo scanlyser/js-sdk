@@ -1,5 +1,12 @@
 import type { Client } from '../client.js';
-import type { ApiCollectionResponse, ApiResponse, PaginatedResponse, Scan, WcagLevel } from '../types/index.js';
+import type {
+  ApiCollectionResponse,
+  ApiResponse,
+  PaginatedResponse,
+  Scan,
+  ScanCategory,
+  WcagLevel,
+} from '../types/index.js';
 import { ScanLyserError } from '../errors/index.js';
 
 export class ScanResource {
@@ -25,11 +32,20 @@ export class ScanResource {
   }
 
   /** Trigger a new scan for a site. */
-  async trigger(siteId: string, wcagLevel: WcagLevel = 'AA', webhookUrl?: string): Promise<Scan> {
+  async trigger(
+    siteId: string,
+    wcagLevel: WcagLevel = 'AA',
+    webhookUrl?: string,
+    categories?: ScanCategory[],
+  ): Promise<Scan> {
     const data: Record<string, unknown> = { wcag_level: wcagLevel };
 
     if (webhookUrl) {
       data.webhook_url = webhookUrl;
+    }
+
+    if (categories !== undefined) {
+      data.categories = categories;
     }
 
     const response = await this.client.post<ApiResponse<Scan>>(
