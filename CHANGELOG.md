@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Requested-category, category-coverage, and scored-category-scope response types
 - `hasUsableCategoryScore()` for guarding category score presentation against missing or incomplete evidence
 - Distinct `ScanPageStatus` lifecycle type, including the API's `evaluating` state
+- Typed v2 exact-occurrence result envelopes, runtime validation, and result hydration for issue/page resources
+- `typecheck` package script and byte-identical canonical result-contract fixture coverage
 
 ### Fixed
 - Treat cancelled scans as terminal in `awaitCompletion()`

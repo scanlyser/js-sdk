@@ -1,5 +1,6 @@
 import type { Client } from '../client.js';
 import type { ApiCollectionResponse, Issue, IssueCategory, IssueSeverity, PaginatedResponse } from '../types/index.js';
+import { parseResultEnvelopeV2 } from '../types/result-envelope.js';
 
 export class IssueResource {
   constructor(
@@ -28,7 +29,10 @@ export class IssueResource {
     );
 
     return {
-      data: response.data,
+      data: response.data.map((issue) => ({
+        ...issue,
+        result: parseResultEnvelopeV2(issue.result),
+      })),
       current_page: response.meta.current_page ?? 1,
       per_page: response.meta.per_page ?? (options.perPage ?? 50),
       total: response.meta.total ?? 0,

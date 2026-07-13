@@ -127,6 +127,27 @@ const critical = await client.issues(teamId).list(scanId, {
 });
 ```
 
+Every issue carries a required `ResultEnvelopeV2` in `issue.result`. The nested contract preserves the versioned check
+identity, finding/diagnostic outcome, explicitly nullable confidence/evidence/method, safe reasoning and limitations,
+structured observed/expected evidence, reproduction context, remediation parameters, and references.
+
+```typescript
+import { parseResultEnvelopeV2 } from '@scanlyser/js-sdk';
+
+const result = issues.data[0].result;
+
+if (result.kind === 'finding' && result.outcome === 'manual_review') {
+  console.log(result.explanation.reasoning, result.evidence);
+}
+
+// Use when parsing a stored report or other untyped JSON.
+const checked = parseResultEnvelopeV2(untypedResult);
+```
+
+`parseResultEnvelopeV2()` rejects unsupported schema versions, invalid kind/outcome combinations, and malformed nested
+values. A `null` qualification field means the scanner explicitly declined to claim it; do not infer a value from the
+issue source.
+
 ### Reports
 
 ```typescript

@@ -19,6 +19,7 @@ export {
 
 export { verifyWebhookSignature } from './webhooks.js';
 export { hasUsableCategoryScore, hasUsableScore } from './types/index.js';
+export { parseResultEnvelopeV2 } from './types/result-envelope.js';
 
 export type {
   Team,
@@ -46,3 +47,21 @@ export type {
   IssueCategory,
   IssueSeverity,
 } from './types/index.js';
+
+export type {
+  DetectionMethod,
+  DiagnosticOutcome,
+  EvidenceQuality,
+  FindingOutcome,
+  ResultBasis,
+  ResultCheck,
+  ResultConfidence,
+  ResultEnvelopeV2,
+  ResultEvidence,
+  ResultExplanation,
+  ResultKind,
+  ResultOutcome,
+  ResultRemediation,
+  ResultReproduction,
+  ResultScalar,
+} from './types/result-envelope.js';

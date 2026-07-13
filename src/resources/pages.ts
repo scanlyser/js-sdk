@@ -1,5 +1,6 @@
 import type { Client } from '../client.js';
 import type { ApiCollectionResponse, ApiResponse, PaginatedResponse, ScanPage } from '../types/index.js';
+import { parseResultEnvelopeV2 } from '../types/result-envelope.js';
 
 export class PageResource {
   constructor(
@@ -15,7 +16,7 @@ export class PageResource {
     );
 
     return {
-      data: response.data,
+      data: response.data.map(hydratePageIssues),
       current_page: response.meta.current_page ?? 1,
       per_page: response.meta.per_page ?? perPage,
       total: response.meta.total ?? 0,
@@ -29,6 +30,16 @@ export class PageResource {
       `${this.teamId}/scans/${scanId}/pages/${pageId}`,
     );
 
-    return response.data;
+    return hydratePageIssues(response.data);
   }
+}
+
+function hydratePageIssues(page: ScanPage): ScanPage {
+  return {
+    ...page,
+    issues: page.issues?.map((issue) => ({
+      ...issue,
+      result: parseResultEnvelopeV2(issue.result),
+    })) ?? null,
+  };
 }

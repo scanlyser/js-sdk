@@ -44,6 +44,8 @@ export type ActionGapReason =
   | 'truncated_response'
   | 'terminal_invariant';
 
+import type { ResultEnvelopeV2 } from './result-envelope.js';
+
 export interface Team {
   id: string;
   name: string;
@@ -198,9 +200,12 @@ export interface Issue {
   category: IssueCategory;
   severity: IssueSeverity;
   message: string;
+  recommendation: string | null;
+  reference_url: string | null;
   url: string;
   culprits: string[];
   help_url: string | null;
+  result: ResultEnvelopeV2;
 }
 
 export interface PaginatedResponse<T> {

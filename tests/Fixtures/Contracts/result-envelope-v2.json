@@ -1,0 +1,49 @@
+{
+    "schema_version": 2,
+    "check": {
+        "id": "axe_core_wcag.serious_violation",
+        "version": 1
+    },
+    "kind": "finding",
+    "outcome": "confirmed",
+    "confidence": "high",
+    "evidence_quality": "direct",
+    "detection_method": "axe",
+    "explanation": {
+        "title": "Text does not have enough contrast against its background to be easy to read",
+        "impact": "The rendered accessibility defect can prevent people using assistive technology from completing a task.",
+        "reasoning": "The rendered foreground and background colours did not meet the rule.",
+        "limitations": [
+            "Confirm brand-approved colours in the affected state."
+        ]
+    },
+    "basis": [
+        {
+            "criterion": "The check uses an axe rule against the rendered accessibility tree and exposes the rule-specific help reference."
+        }
+    ],
+    "evidence": [
+        {
+            "code": "rule_id",
+            "label": "Rule identifier",
+            "observed": "color-contrast"
+        }
+    ],
+    "reproduction": {
+        "url": "https://example.com/checkout",
+        "viewport_width": 1440,
+        "viewport_height": 900,
+        "capture_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "culprits": [
+            "<button class=\"buy\">Buy now</button>"
+        ]
+    },
+    "remediation": {
+        "recommendation": "Raise the contrast between the text and its background until the ratio is at least 4.5 to 1 for normal text, or 3 to 1 for large text (18 point, or 14 point bold and above). Darken the text, lighten the background, or pick a different colour pair, then re-check the ratio. Readers with low vision, and anyone in bright sunlight or on a dim screen, will be able to read the text.",
+        "parameters": {}
+    },
+    "references": [
+        "https://dequeuniversity.com/rules/axe/4.10/color-contrast",
+        "https://www.deque.com/axe/core-documentation/"
+    ]
+}
