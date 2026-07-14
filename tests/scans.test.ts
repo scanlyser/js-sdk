@@ -176,9 +176,52 @@ describe('ScanResource', () => {
       completed_at: '2026-01-01T00:00:00Z',
       failed_at: null,
       failure_reason: null,
+      failure: null,
     };
 
     expect(hasUsableScore(scan)).toBe(false);
+  });
+
+  it('exposes a stable lifecycle failure without raw exception detail', async () => {
+    const client = createClient({
+      status: 200,
+      body: {
+        data: {
+          id: 'scan_failed',
+          site_id: 'site_01',
+          status: 'failed',
+          assessment_outcome: 'failed',
+          coverage: null,
+          requested_categories: ['accessibility'],
+          category_coverage: null,
+          scored_category_scope: null,
+          wcag_level: 'AA',
+          pages_crawled: 0,
+          pages_total: 1,
+          issues_count: 0,
+          scores: null,
+          created_at: '2026-07-14T10:00:00Z',
+          completed_at: null,
+          failed_at: '2026-07-14T10:01:00Z',
+          failure_reason: 'The scan could not be completed.',
+          failure: {
+            code: 'scan_execution_failed',
+            message: 'The scan could not be completed.',
+            correlation_id: '01JZ0000000000000000000002',
+            raw_exception: 'SQLSTATE credentials and internal stack trace',
+          },
+        },
+        meta: { status: 200 },
+      },
+    });
+
+    const scan = await client.scans('team_01').get('scan_failed');
+
+    expect(scan.failure).toEqual({
+      code: 'scan_execution_failed',
+      message: 'The scan could not be completed.',
+      correlation_id: '01JZ0000000000000000000002',
+    });
   });
 
   it('returns cancelled scans from awaitCompletion without polling again', async () => {

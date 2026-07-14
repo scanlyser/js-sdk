@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Distinct `ScanPageStatus` lifecycle type, including the API's `evaluating` state
 - Typed v2 exact-occurrence result envelopes, runtime validation, and result hydration for issue/page resources
 - `typecheck` package script and byte-identical canonical result-contract fixture coverage
+- Discriminated `Finding` and `Diagnostic` resources with finding-only issue hydration
+- Separate paginated diagnostics client and page diagnostic collections/counts
+- Customer-safe `{ code, message, correlation_id }` scan/page lifecycle failures
+- Canonical diagnostic-envelope fixture coverage and finding/diagnostic serialization checks
 
 ### Fixed
 - Treat cancelled scans as terminal in `awaitCompletion()`

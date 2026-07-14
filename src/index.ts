@@ -6,6 +6,7 @@ export { SiteResource } from './resources/sites.js';
 export { ScanResource } from './resources/scans.js';
 export { PageResource } from './resources/pages.js';
 export { IssueResource } from './resources/issues.js';
+export { DiagnosticResource } from './resources/diagnostics.js';
 export { ReportResource } from './resources/reports.js';
 
 export {
@@ -19,7 +20,11 @@ export {
 
 export { verifyWebhookSignature } from './webhooks.js';
 export { hasUsableCategoryScore, hasUsableScore } from './types/index.js';
-export { parseResultEnvelopeV2 } from './types/result-envelope.js';
+export {
+  parseDiagnosticResultEnvelopeV2,
+  parseFindingResultEnvelopeV2,
+  parseResultEnvelopeV2,
+} from './types/result-envelope.js';
 
 export type {
   Team,
@@ -30,7 +35,13 @@ export type {
   ScanWithUsableCategoryScore,
   ScanCoverage,
   ScanPage,
+  Diagnostic,
+  DiagnosticDetail,
+  DiagnosticRecovery,
+  DiagnosticScope,
+  Finding,
   Issue,
+  LifecycleFailure,
   PaginatedResponse,
   ScanStatus,
   ScanPageStatus,
@@ -50,13 +61,16 @@ export type {
 
 export type {
   DetectionMethod,
+  DiagnosticResultEnvelopeV2,
   DiagnosticOutcome,
   EvidenceQuality,
   FindingOutcome,
+  FindingResultEnvelopeV2,
   ResultBasis,
   ResultCheck,
   ResultConfidence,
   ResultEnvelopeV2,
+  ResultEnvelopeV2Base,
   ResultEvidence,
   ResultExplanation,
   ResultKind,

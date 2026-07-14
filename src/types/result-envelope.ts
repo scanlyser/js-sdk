@@ -44,11 +44,9 @@ export interface ResultRemediation {
   parameters: Record<string, ResultScalar>;
 }
 
-export interface ResultEnvelopeV2 {
+export interface ResultEnvelopeV2Base {
   schema_version: 2;
   check: ResultCheck;
-  kind: ResultKind;
-  outcome: ResultOutcome;
   confidence: ResultConfidence | null;
   evidence_quality: EvidenceQuality | null;
   detection_method: DetectionMethod | null;
@@ -59,6 +57,18 @@ export interface ResultEnvelopeV2 {
   remediation: ResultRemediation;
   references: string[];
 }
+
+export interface FindingResultEnvelopeV2 extends ResultEnvelopeV2Base {
+  kind: 'finding';
+  outcome: FindingOutcome;
+}
+
+export interface DiagnosticResultEnvelopeV2 extends ResultEnvelopeV2Base {
+  kind: 'diagnostic';
+  outcome: DiagnosticOutcome;
+}
+
+export type ResultEnvelopeV2 = FindingResultEnvelopeV2 | DiagnosticResultEnvelopeV2;
 
 const findingOutcomes = ['confirmed', 'manual_review'] as const;
 const diagnosticOutcomes = ['inconclusive', 'error'] as const;
@@ -114,6 +124,26 @@ export function parseResultEnvelopeV2(value: unknown): ResultEnvelopeV2 {
   assertStringArray(value.references);
 
   return value as unknown as ResultEnvelopeV2;
+}
+
+export function parseFindingResultEnvelopeV2(value: unknown): FindingResultEnvelopeV2 {
+  const result = parseResultEnvelopeV2(value);
+
+  if (result.kind !== 'finding') {
+    throw new TypeError('Expected a ScanLyser finding result envelope v2.');
+  }
+
+  return result;
+}
+
+export function parseDiagnosticResultEnvelopeV2(value: unknown): DiagnosticResultEnvelopeV2 {
+  const result = parseResultEnvelopeV2(value);
+
+  if (result.kind !== 'diagnostic') {
+    throw new TypeError('Expected a ScanLyser diagnostic result envelope v2.');
+  }
+
+  return result;
 }
 
 function assertEvidence(value: unknown): void {

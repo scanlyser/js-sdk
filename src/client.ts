@@ -1,9 +1,10 @@
-import { mapError, ScanLyserError } from './errors/index.js';
+import { mapError } from './errors/index.js';
 import { TeamResource } from './resources/teams.js';
 import { SiteResource } from './resources/sites.js';
 import { ScanResource } from './resources/scans.js';
 import { PageResource } from './resources/pages.js';
 import { IssueResource } from './resources/issues.js';
+import { DiagnosticResource } from './resources/diagnostics.js';
 import { ReportResource } from './resources/reports.js';
 
 export interface ClientOptions {
@@ -48,6 +49,11 @@ export class Client {
   /** Access issue resources scoped to a team. */
   issues(teamId: string): IssueResource {
     return new IssueResource(this, teamId);
+  }
+
+  /** Access diagnostic resources scoped to a team. */
+  diagnostics(teamId: string): DiagnosticResource {
+    return new DiagnosticResource(this, teamId);
   }
 
   /** Access report resources scoped to a team. */

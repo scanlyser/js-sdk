@@ -1,0 +1,59 @@
+{
+    "schema_version": 2,
+    "check": {
+        "id": "action.execution_failed",
+        "version": 2
+    },
+    "kind": "diagnostic",
+    "outcome": "error",
+    "confidence": null,
+    "evidence_quality": "insufficient",
+    "detection_method": null,
+    "explanation": {
+        "title": "A check failed to complete during analysis",
+        "impact": "The scanner could not make a defensible finding decision for this check.",
+        "reasoning": null,
+        "limitations": []
+    },
+    "basis": [
+        {
+            "criterion": "The diagnostic records an incomplete or failed evaluation without presenting it as a confirmed finding."
+        }
+    ],
+    "evidence": [
+        {
+            "code": "diagnostic_code",
+            "label": "Diagnostic code",
+            "observed": "action_execution_failed"
+        },
+        {
+            "code": "correlation_id",
+            "label": "Support reference",
+            "observed": "01JZ0000000000000000000000"
+        },
+        {
+            "code": "action_key",
+            "label": "Check",
+            "observed": "axe_core_wcag.serious_violation"
+        },
+        {
+            "code": "execution_reference",
+            "label": "Execution reference",
+            "observed": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        },
+        {
+            "code": "execution_phase",
+            "label": "Analysis phase",
+            "observed": "page"
+        }
+    ],
+    "reproduction": {
+        "url": "https://example.com/checkout",
+        "culprits": []
+    },
+    "remediation": {
+        "recommendation": "This is usually a temporary error caused by a timeout or unexpected page structure. The scan continued with other checks. Re-scanning the page may resolve this. If the issue persists, the affected check may be incompatible with this page.",
+        "parameters": {}
+    },
+    "references": []
+}

@@ -1,6 +1,7 @@
 import type { Client } from '../client.js';
 import type { ApiCollectionResponse, ApiResponse, PaginatedResponse, ScanPage } from '../types/index.js';
-import { parseResultEnvelopeV2 } from '../types/result-envelope.js';
+import { parseFindingResultEnvelopeV2 } from '../types/result-envelope.js';
+import { hydrateLifecycleFailure } from './hydration.js';
 
 export class PageResource {
   constructor(
@@ -39,7 +40,14 @@ function hydratePageIssues(page: ScanPage): ScanPage {
     ...page,
     issues: page.issues?.map((issue) => ({
       ...issue,
-      result: parseResultEnvelopeV2(issue.result),
+      kind: 'finding',
+      result: parseFindingResultEnvelopeV2(issue.result),
     })) ?? null,
+    diagnostics_count: page.diagnostics_count ?? 0,
+    diagnostics: page.diagnostics?.map((diagnostic) => ({
+      ...diagnostic,
+      kind: 'diagnostic',
+    })) ?? null,
+    failure: hydrateLifecycleFailure(page.failure),
   };
 }

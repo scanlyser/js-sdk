@@ -44,7 +44,7 @@ export type ActionGapReason =
   | 'truncated_response'
   | 'terminal_invariant';
 
-import type { ResultEnvelopeV2 } from './result-envelope.js';
+import type { DiagnosticOutcome, FindingResultEnvelopeV2 } from './result-envelope.js';
 
 export interface Team {
   id: string;
@@ -110,6 +110,7 @@ export interface Scan {
   completed_at: string | null;
   failed_at: string | null;
   failure_reason: string | null;
+  failure?: LifecycleFailure | null;
 }
 
 export type ScanWithUsableScore = Scan & {
@@ -153,6 +154,9 @@ export interface ScanPage {
   assessment_cause: ScanPageAssessmentCause | null;
   issues_count: number;
   issues: Issue[] | null;
+  diagnostics_count: number;
+  diagnostics: Diagnostic[] | null;
+  failure: LifecycleFailure | null;
   completed_at: string | null;
 }
 
@@ -195,7 +199,8 @@ function categoryScoreValues(scores: ScanScores, category: ScanCategory): (numbe
   }
 }
 
-export interface Issue {
+export interface Finding {
+  kind: 'finding';
   type: string;
   category: IssueCategory;
   severity: IssueSeverity;
@@ -205,7 +210,47 @@ export interface Issue {
   url: string;
   culprits: string[];
   help_url: string | null;
-  result: ResultEnvelopeV2;
+  result: FindingResultEnvelopeV2;
+}
+
+/** Backwards-compatible name for a confirmed or manual-review finding. */
+export type Issue = Finding;
+
+export interface LifecycleFailure {
+  code: string;
+  message: string;
+  correlation_id: string | null;
+}
+
+export interface DiagnosticScope {
+  type: 'page' | 'site';
+  label: string;
+  href: string;
+}
+
+export interface DiagnosticRecovery {
+  label: string;
+  href: string;
+}
+
+export interface DiagnosticDetail {
+  message: string;
+  phase: string | null;
+  state: 'could_not_complete';
+  recovery: DiagnosticRecovery | null;
+}
+
+export interface Diagnostic {
+  kind: 'diagnostic';
+  id: string;
+  index: string;
+  title: string;
+  outcome: DiagnosticOutcome;
+  code: string;
+  correlation_id: string | null;
+  check: string;
+  scope: DiagnosticScope;
+  detail: DiagnosticDetail;
 }
 
 export interface PaginatedResponse<T> {

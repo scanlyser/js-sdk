@@ -8,6 +8,7 @@ import type {
   WcagLevel,
 } from '../types/index.js';
 import { ScanLyserError } from '../errors/index.js';
+import { hydrateScan } from './hydration.js';
 
 export class ScanResource {
   constructor(
@@ -23,7 +24,7 @@ export class ScanResource {
     );
 
     return {
-      data: response.data,
+      data: response.data.map(hydrateScan),
       current_page: response.meta.current_page ?? 1,
       per_page: response.meta.per_page ?? perPage,
       total: response.meta.total ?? 0,
@@ -53,14 +54,14 @@ export class ScanResource {
       data,
     );
 
-    return response.data;
+    return hydrateScan(response.data);
   }
 
   /** Get a single scan by ID. */
   async get(scanId: string): Promise<Scan> {
     const response = await this.client.get<ApiResponse<Scan>>(`${this.teamId}/scans/${scanId}`);
 
-    return response.data;
+    return hydrateScan(response.data);
   }
 
   /** Poll a scan until it reaches a terminal state (completed, failed, or cancelled). */

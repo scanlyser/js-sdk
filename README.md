@@ -35,6 +35,9 @@ const completed = await client.scans(teamId).awaitCompletion(scan.id);
 
 // Get issues
 const issues = await client.issues(teamId).list(completed.id, { severity: 'critical' });
+
+// Inspect scanner diagnostics independently from findings
+const diagnostics = await client.diagnostics(teamId).list(completed.id);
 ```
 
 ## API Reference
@@ -98,6 +101,7 @@ if (hasUsableCategoryScore(completed, 'seo')) {
 
 Polling stops for completed, failed, and cancelled scans. A completed lifecycle does not by itself guarantee a score:
 inspect `assessment_outcome`, `coverage`, or use `hasUsableScore()` before presenting score data.
+When a scan fails, `failure` contains only the stable `code`, customer-safe `message`, and support `correlation_id`.
 
 The fourth `trigger()` argument optionally selects one or more public scan categories: `accessibility`, `seo`,
 `performance`, `ux`, and `security`. Omitting it scans all categories. The existing third positional argument remains
@@ -117,6 +121,9 @@ const pages = await client.pages(teamId).list(scanId);
 const page = await client.pages(teamId).get(scanId, pageId);
 ```
 
+Detailed pages keep `issues` and `diagnostics` as separate collections. `failure` uses the same safe lifecycle-failure
+shape as scans; it never exposes raw exception text or a query-bearing page URL.
+
 ### Issues
 
 ```typescript
@@ -127,16 +134,18 @@ const critical = await client.issues(teamId).list(scanId, {
 });
 ```
 
-Every issue carries a required `ResultEnvelopeV2` in `issue.result`. The nested contract preserves the versioned check
-identity, finding/diagnostic outcome, explicitly nullable confidence/evidence/method, safe reasoning and limitations,
-structured observed/expected evidence, reproduction context, remediation parameters, and references.
+Every issue is a `Finding` (`Issue` remains a backwards-compatible type alias) and carries a required
+`FindingResultEnvelopeV2` in `issue.result`. Finding resources accept only `confirmed` and `manual_review` outcomes;
+diagnostic envelopes are rejected instead of being presented as findings. The nested contract preserves the versioned
+check identity, explicitly nullable confidence/evidence/method, safe reasoning and limitations, structured evidence,
+reproduction context, remediation parameters, and references.
 
 ```typescript
 import { parseResultEnvelopeV2 } from '@scanlyser/js-sdk';
 
 const result = issues.data[0].result;
 
-if (result.kind === 'finding' && result.outcome === 'manual_review') {
+if (result.outcome === 'manual_review') {
   console.log(result.explanation.reasoning, result.evidence);
 }
 
@@ -147,6 +156,20 @@ const checked = parseResultEnvelopeV2(untypedResult);
 `parseResultEnvelopeV2()` rejects unsupported schema versions, invalid kind/outcome combinations, and malformed nested
 values. A `null` qualification field means the scanner explicitly declined to claim it; do not infer a value from the
 issue source.
+
+### Diagnostics
+
+```typescript
+const diagnostics = await client.diagnostics(teamId).list(scanId, 50, 2);
+
+for (const diagnostic of diagnostics.data) {
+  console.log(diagnostic.code, diagnostic.detail.message, diagnostic.correlation_id);
+}
+```
+
+`Diagnostic` is a separate discriminated resource with an `inconclusive` or `error` outcome, string `index`, check and
+scope identity, non-null scope link, safe detail, optional recovery action, and support correlation ID. The third list
+argument selects the API page. Diagnostics never contribute to issue counts.
 
 ### Reports
 

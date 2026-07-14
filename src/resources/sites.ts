@@ -1,5 +1,6 @@
 import type { Client } from '../client.js';
 import type { ApiCollectionResponse, ApiResponse, PaginatedResponse, Site } from '../types/index.js';
+import { hydrateScan } from './hydration.js';
 
 export class SiteResource {
   constructor(
@@ -15,7 +16,7 @@ export class SiteResource {
     );
 
     return {
-      data: response.data,
+      data: response.data.map(hydrateSite),
       current_page: response.meta.current_page ?? 1,
       per_page: response.meta.per_page ?? perPage,
       total: response.meta.total ?? 0,
@@ -27,18 +28,25 @@ export class SiteResource {
   async create(name: string, url: string): Promise<Site> {
     const response = await this.client.post<ApiResponse<Site>>(`${this.teamId}/sites`, { name, url });
 
-    return response.data;
+    return hydrateSite(response.data);
   }
 
   /** Get a single site by ID. */
   async get(siteId: string): Promise<Site> {
     const response = await this.client.get<ApiResponse<Site>>(`${this.teamId}/sites/${siteId}`);
 
-    return response.data;
+    return hydrateSite(response.data);
   }
 
   /** Delete a site. */
   async delete(siteId: string): Promise<void> {
     await this.client.delete(`${this.teamId}/sites/${siteId}`);
   }
+}
+
+function hydrateSite(site: Site): Site {
+  return {
+    ...site,
+    latest_scan: site.latest_scan ? hydrateScan(site.latest_scan) : null,
+  };
 }
